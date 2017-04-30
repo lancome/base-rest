@@ -13,6 +13,9 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth.basic')->prefix('v1')->group(function () {
+    Route::resource('rooms','RoomController');
+
+    // Route::resource('rooms.sensors','SensorController');
+    Route::get('rooms/{room}/{sensor}','RoomController@sensors');
 });

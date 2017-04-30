@@ -21,4 +21,9 @@ class Room extends Model
     {
         return $this->hasMany(Sensor::class);
     }
+
+    public static function findByName($id)
+    {
+        return static::where('name', $id)->first();
+    }
 }

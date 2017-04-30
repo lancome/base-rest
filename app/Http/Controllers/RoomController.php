@@ -4,17 +4,39 @@ namespace App\Http\Controllers;
 
 use App\Room;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use App\Http\Transformers\RoomTransformer;
+use App\Http\Transformers\SensorTransformer;
+use Illuminate\Contracts\Support\Jsonable;
 
-class RoomController extends Controller
+class RoomController extends ApiController
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
+
+     protected $roomTransformer;
+     protected $sensorTransformer;
+
+     function __construct(RoomTransformer $roomTransformer, SensorTransformer $sensorTransformer)
+     {
+         $this->roomTransformer = $roomTransformer;
+         $this->sensorTransformer = $sensorTransformer;
+     }
+
     public function index()
     {
-        //
+        $rooms = Room::all();
+        return response()->json([
+            'data' => $this->roomTransformer->transformCollection($rooms->toArray())
+        ], 200);
+
+        // $rooms = Room::paginate(2);
+        // return response()->json([
+        //     'data' => $rooms
+        // ], 200);
     }
 
     /**
@@ -44,9 +66,16 @@ class RoomController extends Controller
      * @param  \App\Room  $room
      * @return \Illuminate\Http\Response
      */
-    public function show(Room $room)
+    public function show($roomName)
     {
-        //
+        $room = Room::findByName($roomName);
+        if(!$room) {
+            return $this->respondNotFound('Room does not exists');
+        }
+        $sensors = $room->sensors()->get();
+        return response()->json([
+            'data' => $this->sensorTransformer->transformCollection($sensors->toArray())
+        ], 200);
     }
 
     /**
@@ -55,7 +84,7 @@ class RoomController extends Controller
      * @param  \App\Room  $room
      * @return \Illuminate\Http\Response
      */
-    public function edit(Room $room)
+    public function edit($roomName)
     {
         //
     }
@@ -81,5 +110,23 @@ class RoomController extends Controller
     public function destroy(Room $room)
     {
         //
+    }
+
+
+    public function sensors($roomName, $sensorName)
+    {
+        $room = Room::findByName($roomName);
+        if(!$room) {
+            return $this->respondNotFound('Room does not exists');
+        }
+
+        $sensors = $room->sensors()->where('name', $sensorName)->get();
+        if($sensors->isEmpty()) {
+            return $this->respondNotFound('Sensor does not exists');
+        }
+        
+        return response()->json([
+            'data' => $this->sensorTransformer->transformCollection($sensors->toArray())
+        ], 200);
     }
 }

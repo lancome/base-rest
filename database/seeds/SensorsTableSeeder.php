@@ -21,13 +21,13 @@ class SensorsTableSeeder extends Seeder
         $user->password = bcrypt('123123');
         $user->save();
 
-        User::first()->rooms()->create([
+        Room::create([
             'name' => 'Bedroom',
         ]);
-        User::first()->rooms()->create([
+        Room::create([
             'name' => 'Kitchen',
         ]);
-        User::first()->rooms()->create([
+        Room::create([
             'name' => 'WC',
         ]);
         Room::where('name','Bedroom')->first()->sensors()->create([

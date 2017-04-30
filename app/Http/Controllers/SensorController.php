@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Sensor;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
-class SensorController extends Controller
+class SensorController extends ApiController
 {
     /**
      * Display a listing of the resource.
