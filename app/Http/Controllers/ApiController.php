@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ApiController extends Controller
 {
-    protected $statusCode;
+    protected $statusCode = 200;
+    protected $sensors = 2;
+    protected $sensorLimit = 288;
 
     public function getStatusCode()
     {
@@ -25,6 +28,11 @@ class ApiController extends Controller
         return $this->setStatusCode(404)->respondWithError($message);
     }
 
+    public function respondWrongRange($message = "Requested range not satisfiable")
+    {
+        return $this->setStatusCode(416)->respondWithError($message);
+    }
+
     public function respond($data, $headers = [])
     {
         return response()->json($data, $this->getStatusCode(), $headers);
@@ -40,4 +48,18 @@ class ApiController extends Controller
         ]);
     }
 
+    public function respondWithPagination(LengthAwarePaginator $item, $data)
+    {
+        $data = array_merge($data, [
+        'paginator' => [
+                'total_count' => $item->total(),
+                'limit' => $item->count(),
+                'current_page' => $item->currentPage(),
+                'prev_page_url' => $item->previousPageUrl(),
+                'next_page_url' => $item->nextPageUrl(),
+                'total_page' => $item->lastPage(),
+            ]
+        ]);
+        return $this->respond($data);
+    }
 }

@@ -8,6 +8,7 @@ use Illuminate\Http\Response;
 use App\Http\Transformers\RoomTransformer;
 use App\Http\Transformers\SensorTransformer;
 use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Support\Facades\Input;
 
 class RoomController extends ApiController
 {
@@ -28,16 +29,62 @@ class RoomController extends ApiController
 
     public function index()
     {
-        $rooms = Room::all();
-        return response()->json([
-            'data' => $this->roomTransformer->transformCollection($rooms->toArray())
-        ], 200);
+        $limit = Input::get('limit') ?: 1;
+        $rooms = Room::paginate($limit);
+        return $this->respondWithPagination($rooms, [
+            'data' => $this->roomTransformer->transformCollection($rooms->all()),
+        ]);
+    }    
 
-        // $rooms = Room::paginate(2);
-        // return response()->json([
-        //     'data' => $rooms
-        // ], 200);
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Room  $room
+     * @return \Illuminate\Http\Response
+     */
+    public function show($roomName)
+    {
+        $limit = Input::get('limit') ?: $this->sensorLimit;
+
+        $room = Room::findByName($roomName);
+        if(!$room) {
+            return $this->respondNotFound('Room does not exists');
+        }
+        if($limit>$this->sensorLimit*$this->sensors)
+        {
+            return $this->respondWrongRange('Requested range not satisfiable');
+        }
+        $sensors = $room->sensors()->paginate((int)$limit);
+        return $this->respondWithPagination($sensors, [
+            'data' => $this->sensorTransformer->transformCollection($sensors->all())
+        ]);
     }
+
+    public function sensors($roomName, $sensorName)
+    {
+        $limit = Input::get('limit') ?: $this->sensorLimit;
+        $room = Room::findByName($roomName);
+
+        if(!$room) {
+            return $this->respondNotFound('Room does not exists');
+        }
+
+        if($limit>$this->sensorLimit)
+        {
+            return $this->respondWrongRange('Requested range not satisfiable');
+        }
+
+        $sensors = $room->sensors()->where('name', $sensorName)->paginate((int)$limit);
+        if($sensors->isEmpty()) {
+            return $this->respondNotFound('Sensor does not exists');
+        }
+        
+        return $this->respondWithPagination($sensors, [
+            'data' => $this->sensorTransformer->transformCollection($sensors->all())
+        ]);
+    }
+
+    
 
     /**
      * Show the form for creating a new resource.
@@ -58,24 +105,6 @@ class RoomController extends ApiController
     public function store(Request $request)
     {
         //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Room  $room
-     * @return \Illuminate\Http\Response
-     */
-    public function show($roomName)
-    {
-        $room = Room::findByName($roomName);
-        if(!$room) {
-            return $this->respondNotFound('Room does not exists');
-        }
-        $sensors = $room->sensors()->get();
-        return response()->json([
-            'data' => $this->sensorTransformer->transformCollection($sensors->toArray())
-        ], 200);
     }
 
     /**
@@ -110,23 +139,5 @@ class RoomController extends ApiController
     public function destroy(Room $room)
     {
         //
-    }
-
-
-    public function sensors($roomName, $sensorName)
-    {
-        $room = Room::findByName($roomName);
-        if(!$room) {
-            return $this->respondNotFound('Room does not exists');
-        }
-
-        $sensors = $room->sensors()->where('name', $sensorName)->get();
-        if($sensors->isEmpty()) {
-            return $this->respondNotFound('Sensor does not exists');
-        }
-        
-        return response()->json([
-            'data' => $this->sensorTransformer->transformCollection($sensors->toArray())
-        ], 200);
     }
 }

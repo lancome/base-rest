@@ -10,7 +10,7 @@ class SensorTransformer extends Transformer
         return [
             'name' => $sensor['name'],
             'result' => (float) $sensor['result'],
-            'date_time' => $sensor['created_at']
+            'date_time' => Carbon::parse($sensor['created_at'])->toDateTimeString()
         ];
     }
 }
