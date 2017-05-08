@@ -32,7 +32,7 @@ class RoomController extends ApiController
 
     public function currentRoom($roomName)
     {
-        $limit = Input::get('limit') ?: $this->sensorLimit;
+        $limit = Input::get('limit') ?: ($this->sensorLimit * $this->sensors);
 
         $room = Room::findByName($roomName);
         if(!$room) {

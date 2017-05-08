@@ -8,7 +8,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ApiController extends Controller
 {
     protected $statusCode = 200;
-    protected $sensors = 2;
+    protected $sensors = 3;
     protected $sensorLimit = 288;
 
     public function getStatusCode()
