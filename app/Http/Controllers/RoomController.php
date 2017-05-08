@@ -21,7 +21,7 @@ class RoomController extends ApiController
          $this->sensorTransformer = $sensorTransformer;
      }
 
-    public function index()
+    public function allRooms()
     {
         $limit = Input::get('limit') ?: 10;
         $rooms = Room::paginate($limit);
@@ -30,7 +30,7 @@ class RoomController extends ApiController
         ]);
     }    
 
-    public function show($roomName)
+    public function currentRoom($roomName)
     {
         $limit = Input::get('limit') ?: $this->sensorLimit;
 
@@ -48,7 +48,7 @@ class RoomController extends ApiController
         ]);
     }
 
-    public function sensors($roomName, $sensorName)
+    public function currentSensor($roomName, $sensorName)
     {
         $limit = Input::get('limit') ?: $this->sensorLimit;
         $room = Room::findByName($roomName);
