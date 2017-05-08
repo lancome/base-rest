@@ -79,7 +79,9 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Laravel + Raspberry + Arduino
+                    Laravel 5.4 REST Api
+                    <br/>
+                    Raspberry Pi + Arduino Uno
                 </div>
             </div>
         </div>
