@@ -33,6 +33,11 @@ class ApiController extends Controller
         return $this->setStatusCode(416)->respondWithError($message);
     }
 
+    public function respondSuccess($message = "OK!")
+    {
+        return $this->setStatusCode(200)->respondWithSuccess($message);
+    }
+
     public function respond($data, $headers = [])
     {
         return response()->json($data, $this->getStatusCode(), $headers);
@@ -42,6 +47,16 @@ class ApiController extends Controller
     {
         return $this->respond([
             'error' => [
+                'message' => $message,
+                'status_code' => $this->getStatusCode()
+            ]
+        ]);
+    }
+    
+    public function respondWithSuccess($message)
+    {
+        return $this->respond([
+            'success' => [
                 'message' => $message,
                 'status_code' => $this->getStatusCode()
             ]

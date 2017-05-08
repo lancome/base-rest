@@ -18,4 +18,6 @@ Route::middleware('auth.basic')->prefix('v1')->group(function () {
     Route::get('rooms','RoomController@allRooms');
     Route::get('rooms/{room}','RoomController@currentRoom');
     Route::get('rooms/{room}/{sensor}','RoomController@currentSensor');
+    Route::get('/ledon','SwitcherController@on');
+    Route::get('/ledoff','SwitcherController@off');
 });
